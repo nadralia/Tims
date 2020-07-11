@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="title">Add Itinerary</h1>
+    {% if canAdd|length == 0 %}
+    <form method="post" action=".">
+        {% csrf_token %}
+
+        <div class="field">
+            <label class="label">{{form.itineraryname.label_tag}}</label>
+            <div class="control">
+                {{ form.itineraryname }}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">{{form.numberadults.label_tag}}</label>
+            <div class="control">
+                {{ form.numberadults }}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">{{form.numberchildren.label_tag}}</label>
+            <div class="control">
+                {{ form.numberchildren }}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">{{form.monthyear.label_tag}}</label>
+            <div class="control">
+                {{ form.monthyear }}
+            </div>
+        </div>
+        <button type="submit" class="button is-primary">Submit</button>
+    </form>
+
+    {% else %}
+    <article class="message is-danger">
+        <div class="message-body">
+            {{ canAdd }}
+        </div>
+    </article>
+   {% endif %}
+</div>
+{% endblock %}

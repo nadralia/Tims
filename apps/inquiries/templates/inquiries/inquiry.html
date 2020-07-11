@@ -1,0 +1,165 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container" id="delete-inquiry">
+
+    {% if messages %}
+        {% for message in messages %}
+            <article class="message is-{{ message.tags }}">
+                <div class="message-body">
+                    {{ message }}
+                </div>
+            </article>
+        {% endfor %}
+    {% endif %}
+
+    <div class="column is-multiline">
+
+        <div class="column is-12">
+            <h1 class="title">{{ inquiry.title }}</h1>
+            <h2 class="subtitle">{{ inquiry.itineraries.all|length }} itinerary{{ inquiry.itineraries.all|length|pluralize:'s' }}</h2>        
+        </div>
+        <div class="column is-12">
+            <p>{{ inquiry.description }}</p>
+        </div>
+
+        <div class="column is-12">
+            <a  class="button is-primary" href="{% url 'itinerary_add' inquiry.id %}">Add Itinerary </a>
+            <a  class="button is-warning" href="{% url 'inquiry_edit' inquiry.id %}">Edit Inquiry</a>
+            <a  class="button is-danger" @click="toggleDialog({{inquiry.id}})">Delete Inquiry</a>
+        </div>
+
+    </div>
+
+    <div class="columns is-multiline">
+        <div class="column is-3"
+            v-for="itinerary in itineraries"
+            v-bind:key="itinerary.id"
+        >
+            <div class="card card-link">
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            <p class="title is-4">[[itinerary.itineraryname]]</p>
+                        </div>
+                    </div>
+                    <div class="content">
+                       Adults:  [[itinerary.numberadults ]]
+                       Children: [[ itinerary.numberchildren ]]
+                       Visits: [[itinerary.visits]]
+                    </div>
+
+                </div>
+                <footer class="card-footer">
+                    <a :href="itinerary.url" @click="increaseVisits(itinerary.id)" class="card-footer-item" target="_blank">Visit</a>
+                    <a :href="itinerary.editurl" class="card-footer-item" target="_blank">Edit</a>
+                    <a @click="toggleItineraryDialog([[itinerary.id]])" class="card-footer-item" >Delete</a>
+                </footer>
+            </div>
+        </div>
+    </div>
+    <div class="modal" v-bind:class="{ 'is-active' : showDialog }">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title"> Are you sure?</p>
+                <button class="delete" aria-label="close" @click="showDialog = !showDialog"></button>
+            </header>
+            <section class="modal-card-body">
+                If you delete this Inquiry, all itineraries belonging to it will be deleted as well!
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" @click="deleteInquiry()">Yes, delete</button>
+                <button class="button" @click="showDialog = !showDialog">Cancel</button>
+            </footer>
+        </div>
+    </div>
+    <div class="modal" v-bind:class="{ 'is-active' : showItineraryDialog }">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title"> Are you sure?</p>
+                <button class="delete" aria-label="close" @click="showItineraryDialog = !showItineraryDialog"></button>
+            </header>
+            <section class="modal-card-body">
+                Are you  sure you want to delete the itinerary
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" @click="deleteItinerary()">Yes, delete</button>
+                <button class="button" @click="showItineraryDialog = !showItineraryDialog">Cancel</button>
+            </footer>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        new Vue({
+            el: '#delete-inquiry',
+            delimiters: ['[[',']]'],
+            data (){
+                return{
+                    showDialog: false,
+                    inquiry_id: 0,
+                    itinerary_id: 0,
+                    showItineraryDialog: false,
+                    itineraries: [
+                        {{ itinerariesstring|safe }}
+                    ]
+                }
+            },
+            mounted () {
+                console.log(this.itineraries)
+            },
+            methods: {
+                toggleDialog(id) {
+                    this.inquiry_id = id
+                    this.showDialog = true
+                },
+                toggleItineraryDialog(id) {
+                    this.itinerary_id = id
+                    this.showItineraryDialog = true
+                },
+                deleteInquiry() {
+                    axios.post('/app/api/delete_inquiry/'+ this.inquiry_id + '/')
+                    .then((response) =>{
+                        console.log(response)
+                        this.showDialog = false
+
+                        window.location.href = '/app/inquiries'
+                    })
+                    .catch((function (error){
+                        console.log(error)
+                    }))
+                },
+                deleteItinerary() {
+                    axios.post('/app/api/delete_itinerary/'+ this.itinerary_id + '/')
+                    .then((response) =>{
+                        console.log(response)
+                        this.showItineraryDialog = false
+                        this.itineraries = this.itineraries.filter(itinerary => itinerary.id !== this.itinerary_id)
+                    })
+                    .catch((function (error){
+                        console.log(error)
+                    }))
+                },
+                increaseVisits(itinerary_id) {
+                    axios.post('/app/api/increase_visits/'+ itinerary_id + '/')
+                    .then((response) =>{
+                        console.log(response)
+
+                        for(let i=0; i < this.itineraries.length; i++){
+                            if(this.itineraries[i].id === itinerary_id){
+                                this.itineraries[i].visits = parseInt(this.itineraries[i]) + 1
+                            }
+                        }
+
+                    })
+                    .catch((function (error){
+                        console.log(error)
+                    }))
+                }
+            }
+        })
+    </script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="title">Edit Itinerary</h1>
+    <form method="post" action=".">
+        {% csrf_token %}
+
+        <div class="field">
+            <label class="label">{{form.itineraryname.label_tag}}</label>
+            <div class="control">
+                {{ form.itineraryname }}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">{{form.numberadults.label_tag}}</label>
+            <div class="control">
+                {{ form.numberadults }}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">{{form.numberchildren.label_tag}}</label>
+            <div class="control">
+                {{ form.numberchildren }}
+            </div>
+        </div>
+        <div class="field">
+            <label class="label">{{form.monthyear.label_tag}}</label>
+            <div class="control">
+                {{ form.monthyear }}
+            </div>
+        </div>
+
+        <div class="field is-grouped">
+            <div class="control">
+                <button type="submit" class="button is-primary">Save changes</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="title">Inquiries</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <article class="message is-{{ message.tags }}">
+                <div class="message-body">
+                    {{ message }}
+                </div>
+            </article>
+        {% endfor %}
+    {% endif %}
+    <a  class="button is-primary" href="{% url 'inquiry_add' %}" class="navbar-item">Add Inquiry</a>
+    <hr/>
+    <div class="columns is-multiline">
+        {% for inquiry in inquiries %}
+            <div class="column is-3">
+                <div class="card card-link">
+                    <div class="card-content">
+                        <div class="media">
+                            <div class="media-content">
+                                <p class="title is-4">{{ inquiry.title}}</p>
+                            </div>
+                        </div>
+                        <div class="content">
+                            {{ inquiry.description }}
+                        </div>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="{% url 'inquiry' inquiry.id %}" class="card-footer-item">View</a>
+                        <a href="{% url 'inquiry_edit' inquiry.id %}" class="card-footer-item" target="_blank">Edit</a>
+                    </footer>
+                </div>
+            </div>
+         {% endfor %}   
+    </div>
+</div>
+{% endblock %}
